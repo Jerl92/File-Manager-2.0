@@ -1,0 +1,89 @@
+/**
+ * All of the CSS for your public-facing functionality should be
+ * included in this file.
+ */
+
+.filemanagerbtnup {
+    border: 0.5px solid black;
+    float: left;
+    text-align: center;
+    line-height: 50px;
+    padding: 0 15px;
+    width: auto;
+}
+
+#filemanagerbtnup {
+    display: inline-block;
+}
+
+.filemanagerbtndown {
+    border: 0.5px solid black;
+    width: auto;
+    float: left;
+    text-align: center;
+    line-height: 50px;
+    padding: 0 15px;
+}
+
+#filemanagerbtndown {
+    display: inline-block;
+}
+
+.filemanagerbtn {
+    width: 100%;
+}
+
+.filemanagerinfo {
+    float: right;
+}
+
+.filemanager-table {
+    margin: 0 !important;
+}
+
+.filemanager-table-td {
+    width: 25px !important;
+}
+
+.filemanager-info-wrapper {
+    width: 75%;
+    margin: 0;
+}
+
+.info-window {
+    position: absolute;
+    top: 250px;
+    left: 25%;
+    width: 50%;
+    height: auto;
+    background-color: #fff;
+    border: 0.5px solid rgba(0,0,0,0.15);
+    padding: 25px;
+ }
+ 
+ .info-window-close{
+    float: right !important;
+ }
+
+ .filemanager-info-wrapper {
+    width: 100%;
+ }
+
+ .filemanager-info-video-wrapper {
+    width: 50%;
+    padding-bottom: 25px;
+ }
+
+ .filemanager-info-audio-wrapper {
+    width: 50%;
+    padding-bottom: 25px;
+ }
+
+ .filemanager-download-btn {
+    border: 0.5px solid black;
+    float: left;
+    text-align: center;
+    line-height: 50px;
+    padding: 0 15px;
+    width: auto;
+ }
