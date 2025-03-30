@@ -9,6 +9,8 @@ function filemanager_shortcode() {
     
     $workplaces = get_posts( $args );
 
+    echo '<div id="sequentialupload" class="sequentialupload"></div>';
+
     ?><div class="file-manager-wrapper"><?php
 
         foreach($workplaces as $workplace){

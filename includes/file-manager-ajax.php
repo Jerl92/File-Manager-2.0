@@ -35,6 +35,8 @@ function file_manager_get($post) {
 
     $path = $_POST['object_id'];
 
+    $uploads = $_POST['upload'];
+
     $postid = $_POST['postid'];
 
     $path_origin = get_post_meta($postid, "_workplace_path", true);
@@ -51,8 +53,6 @@ function file_manager_get($post) {
 
     $html[] = '<div id="currentpostid" style="display:none">'.$postid.'</div>';
 
-    $html[] .= '<div id="sequentialupload" class="sequentialupload" data-object-id="'.$path.'"></div>';
-
     $html[] .= '<div class="filemanagerbtn">';
 
         $html[] .= '<div id="filemanagerbtnup">';
@@ -67,8 +67,10 @@ function file_manager_get($post) {
                     $html[] .= 'Home';
                 $html[] .= '</a>';
             }
-            $html[] .= '<div class="uploadfile filemanagerbtnup">Upload File</div>';
-            $html[] .= '<input id="fileupload" type="file" name="fileupload" multiple style="display:none;"/>';
+            if(is_dir($path .'/'. $file)) {
+                $html[] .= '<div class="uploadfile filemanagerbtnup">Upload File</div>';
+                $html[] .= '<input id="fileupload" type="file" name="fileupload" multiple style="display:none;"/>';
+            }
         $html[] .= '</div>';
 
         $html[] .= '<div id="filemanagerbtndown">';
@@ -82,6 +84,9 @@ function file_manager_get($post) {
     $html[] .= '<div class="filemanager-info-wrapper">';
     
     $html[] .= '<table class="filemanager-table">';
+        foreach($uploads as $upload){
+            $html[] .= $upload;
+        } 
         foreach($files as $file){
             $html[] .= '<tr>';
                 $html[] .= '<td class="filemanager-table-td">';

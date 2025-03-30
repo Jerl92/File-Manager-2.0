@@ -1,5 +1,12 @@
 function file_manager_get($, path, postid){
 
+    var uploads = [];
+    var i = 0;
+    jQuery('.fileupload').each(function() {
+        uploads[i] = jQuery(this);
+        i++;
+    });
+
     if(path == null && postid == null){
         jQuery('.workplace-path').click(function($){
 
@@ -15,6 +22,7 @@ function file_manager_get($, path, postid){
                 data: {
                     'object_id': object_id,
                     'postid': postid,
+                    'upload': uploads,
                     'action': 'file_manager_get'
                 },
                 dataType: 'json',
@@ -46,6 +54,7 @@ function file_manager_get($, path, postid){
             data: {
                 'object_id': object_id,
                 'postid': postid,
+                'upload': uploads,
                 'action': 'file_manager_get'
             },
             dataType: 'json',
