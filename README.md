@@ -1,14 +1,14 @@
-=== File-Manger-2.0 ===
-Contributors: Jerl92
-Donate link: https://https://github.com/Jerl92/
-Tags: comments, spam
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 4.3
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+=== File-Manger-2.0 ===</br>
+Contributors: Jerl92</br>
+Donate link: https://https://github.com/Jerl92/</br>
+Tags: comments, spam</br>
+Requires at least: 3.0.1</br>
+Tested up to: 3.4</br>
+Stable tag: 4.3</br>
+License: GPLv2 or later</br>
+License URI: http://www.gnu.org/licenses/gpl-2.0.html</br>
 
-File manager in AJAX plugin for Wordpress.org
+File manager in AJAX plugin for Wordpress.org</br>
 
 == Description ==
 
@@ -22,7 +22,7 @@ This section describes how to install the plugin and get it working.
 
 e.g.
 
-1. Upload `Fle-Manager` to the `/wp-content/plugins/` directory
+1. Upload `File-Manager` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Place shortcode `[file-manager]` in page.
 

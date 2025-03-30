@@ -14,6 +14,10 @@ function wp_filemanager_ajax_scripts() {
 	wp_localize_script( 'file-manager-get', 'file_manager_get_ajax', admin_url( 'admin-ajax.php' ) );
 	wp_enqueue_script( 'file-manager-get' );	
 
+    wp_register_script( 'file-manager-upload', $url . "js/file.manager.upload.js", array( 'jquery' ), '1.0.0', true );
+	wp_localize_script( 'file-manager-upload', 'file_manager_upload_ajax', plugin_dir_url( __DIR__ ) . 'includes/upload.php' );
+	wp_enqueue_script( 'file-manager-upload' );	
+
     wp_register_script( 'file-manager-info', $url . "js/file.manager.info.js", array( 'jquery' ), '1.0.0', true );
 	wp_localize_script( 'file-manager-info', 'file_manager_info_ajax', admin_url( 'admin-ajax.php' ) );
 	wp_enqueue_script( 'file-manager-info' );	
@@ -43,23 +47,29 @@ function file_manager_get($post) {
 
     include_once(dirname(__FILE__) . '/id3/getid3.php');
 
+    $html[] = '<div id="currentdir" style="display:none">'.$path.'/'.'</div>';
+
+    $html[] = '<div id="currentpostid" style="display:none">'.$postid.'</div>';
+
+    $html[] .= '<div id="sequentialupload" class="sequentialupload" data-object-id="'.$path.'"></div>';
+
     $html[] .= '<div class="filemanagerbtn">';
 
-        if ($percent_path != 100) {
-            $html[] .= '<div id="filemanagerbtnup">';
-                $html[] .= '<div class="workplace-path filemanagerbtnup" data-object-id="'. dirname($path) . '" data-post-id="'.$postid.'">';
-                    $html[] .= 'Parent directory';
-                $html[] .= '</div>';
-            $html[] .= '</div>';
-        } else {
-        global $wp;
-        $link = home_url( $wp->request );
-        $html[] .= '<div id="filemanagerbtnup>';
-            $html[] .= '<a herf="'.$link.'" class="filemanagerbtnup">';
-                $html[] .= 'Home';
-            $html[] .= '</a>';
+        $html[] .= '<div id="filemanagerbtnup">';
+            if ($percent_path != 100) {
+                    $html[] .= '<div class="workplace-path filemanagerbtnup" data-object-id="'. dirname($path) . '" data-post-id="'.$postid.'">';
+                        $html[] .= 'Parent directory';
+                    $html[] .= '</div>';
+            } else {
+            global $wp;
+            $link = home_url( $wp->request );
+                $html[] .= '<a herf="'.$link.'" class="filemanagerbtnup">';
+                    $html[] .= 'Home';
+                $html[] .= '</a>';
+            }
+            $html[] .= '<div class="uploadfile filemanagerbtnup">Upload File</div>';
+            $html[] .= '<input id="fileupload" type="file" name="fileupload" multiple style="display:none;"/>';
         $html[] .= '</div>';
-        }
 
         $html[] .= '<div id="filemanagerbtndown">';
             $html[] .= '<div class="filemanagerinfo filemanagerbtndown">';
