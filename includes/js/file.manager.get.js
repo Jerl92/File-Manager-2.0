@@ -36,6 +36,7 @@ function file_manager_get($, path, postid){
                     filemanager_info_files($);
                     filemanager_uploads_files($);
                     filemanager_delete_files($);
+                    filemanager_home($);
                 },
                 error: function(errorThrown){
                     console.log(errorThrown);
@@ -69,6 +70,7 @@ function file_manager_get($, path, postid){
                 filemanager_info_files($);
                 filemanager_uploads_files($);
                 filemanager_delete_files($);
+                filemanager_home($);
             },
             error: function(errorThrown){
                 console.log(errorThrown);

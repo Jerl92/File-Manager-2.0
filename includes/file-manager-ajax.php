@@ -25,6 +25,10 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'file-manager-delete', $url . "js/file.manager.delete.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'file-manager-delete', 'file_manager_delete_ajax', admin_url( 'admin-ajax.php' ) );
     wp_enqueue_script( 'file-manager-delete' );
+    
+    wp_register_script( 'file-manager-home', $url . "js/file.manager.home.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'file-manager-home', 'file_manager_home_ajax', admin_url( 'admin-ajax.php' ) );
+    wp_enqueue_script( 'file-manager-home' );
 
 }
 
@@ -67,9 +71,9 @@ function file_manager_get($post) {
             } else {
             global $wp;
             $link = home_url( $wp->request );
-                $html[] .= '<a herf="'.$link.'" class="filemanagerbtnup">';
+                $html[] .= '<div class="home-filemanager filemanagerbtnup" data-object-id="'.$link.'">';
                     $html[] .= 'Home';
-                $html[] .= '</a>';
+                $html[] .= '</div>';
             }
             if(is_dir($path .'/'. $file)) {
                 $html[] .= '<div class="uploadfile filemanagerbtnup">Upload File</div>';
@@ -113,11 +117,9 @@ function file_manager_get($post) {
     }
 
     $html[] .= '<table class="filemanager-table">';
-        if(isset($uploads)){
-            foreach($uploads as $upload){
-                $html[] .= $upload;
-            }    
-        }
+        foreach($uploads as $upload){
+            $html[] .= $upload;
+        }    
         foreach($files as $file){
             $html[] .= '<tr>';
                 $html[] .= '<td class="filemanager-table-td">';
