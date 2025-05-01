@@ -15,7 +15,7 @@ if(isset($_FILES["myfile"])) {
 			$fileName = $_FILES["myfile"]["name"];
 			rmdir($output_dir.$relativepath);
 		   	move_uploaded_file($_FILES["myfile"]["tmp_name"],$output_dir.$relativepath);
-		  	$ret[]= $output_dir.$relativepath;
+			$ret[]= $output_dir.$relativepath;
 	  } else {
 		$fileCount = count($_FILES["myfile"]["name"]);
 		for($i=0; $i < $fileCount; $i++) {

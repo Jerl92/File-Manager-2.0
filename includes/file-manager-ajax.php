@@ -57,7 +57,7 @@ function file_manager_get($post) {
 
     include_once(dirname(__FILE__) . '/id3/getid3.php');
 
-    $html[] = '<div id="currentdir" style="display:none">'.$path.'</div>';
+    $html[] = '<div id="currentdir" style="display:none">'.realpath($path).'</div>';
 
     $html[] = '<div id="currentpostid" style="display:none">'.$postid.'</div>';
 
@@ -78,6 +78,8 @@ function file_manager_get($post) {
             if(is_dir($path .'/'. $file)) {
                 $html[] .= '<div class="uploadfile filemanagerbtnup">Upload File</div>';
                 $html[] .= '<input id="fileupload" type="file" name="fileupload" multiple style="display:none;"/>';
+                $html[] .= '<div class="uploaddir filemanagerbtnup">Upload Dir</div>';
+                $html[] .= '<input id="dirupload" type="file" name="fileupload" webkitdirectory multiple style="display: none;">';
             }
             $html[] .= '<div class="btndelete filemanagerbtnup">Delete</div>';
         $html[] .= '</div>';
