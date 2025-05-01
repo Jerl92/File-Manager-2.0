@@ -37,6 +37,10 @@ function wp_filemanager_ajax_scripts() {
     wp_register_script( 'file-manager-createdir', $url . "js/file.manager.createdir.js", array( 'jquery' ), '1.0.0', true );
     wp_localize_script( 'file-manager-createdir', 'file_manager_createdir_ajax', admin_url( 'admin-ajax.php' ) );
     wp_enqueue_script( 'file-manager-createdir' );
+    
+    wp_register_script( 'file-manager-codemirror', $url . "js/file.manager.codemirror.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'file-manager-codemirror', 'file_manager_codemirror_ajax', admin_url( 'admin-ajax.php' ) );
+    wp_enqueue_script( 'file-manager-codemirror' );
 
 }
 
@@ -69,6 +73,24 @@ function file_manager_get($post) {
 
     $html[] = '<div id="currentpostid" style="display:none">'.$postid.'</div>';
 
+    $path_info = pathinfo($path);
+    $extension_strtolower = strtolower($path_info['extension']);
+
+    $workplaceright = get_post_meta( $postid, "_workplace_right", true);
+
+    if($workplaceright[-1]['read'] == 1) {
+        $read_path = true;
+    }
+    if($workplaceright[-1]['write'] == 1) {
+        $write_path = true;
+    }
+    if($workplaceright[$user->ID]['read'] == 1) {
+        $read_path = true;
+    }
+    if($workplaceright[$user->ID]['write'] == 1) {
+        $write_path = true;
+    }
+
     $html[] .= '<div class="filemanagerbtn">';
 
         $html[] .= '<div id="filemanagerbtnup">';
@@ -84,25 +106,32 @@ function file_manager_get($post) {
                 $html[] .= '</div>';
             }
             if(is_dir($path .'/'. $file)) {
-                $html[] .= '<div class="uploadfile filemanagerbtnup">Upload File</div>';
-                $html[] .= '<input id="fileupload" type="file" name="fileupload" multiple style="display:none;"/>';
-                $html[] .= '<div class="uploaddir filemanagerbtnup">Upload Dir</div>';
-                $html[] .= '<input id="dirupload" type="file" name="fileupload" webkitdirectory multiple style="display: none;">';
-                $html[] .= '<div class="btnnewfile filemanagerbtnup">Create file</div>';
-                $html[] .= '<div id="subnav-content-file" class="subnav-content" style="display: none;">';
+                if ($write_path == true) {
+                    $html[] .= '<div class="uploadfile filemanagerbtnup">Upload File</div>';
+                    $html[] .= '<input id="fileupload" type="file" name="fileupload" multiple style="display:none;"/>';
+                    $html[] .= '<div class="uploaddir filemanagerbtnup">Upload Dir</div>';
+                    $html[] .= '<input id="dirupload" type="file" name="fileupload" webkitdirectory multiple style="display: none;">';
+                    $html[] .= '<div class="btnnewfile filemanagerbtnup">Create file</div>';
+                    $html[] .= '<div id="subnav-content-file" class="subnav-content" style="display: none;">';
+                        $html[] .= '<span>';
+                            $html[] .= '<input type="text" id="lnamefile" name="lname"></input>';
+                            $html[] .= '<button class="newfile">Create</button>';
                     $html[] .= '<span>';
-                        $html[] .= '<input type="text" id="lnamefile" name="lname"></input>';
-                        $html[] .= '<button class="newfile">Create</button>';
-                   $html[] .= '<span>';
-                $html[] .= '</div>';
-                 $html[] .= '<div class="btnnewdir filemanagerbtnup">Create dir</div>';
-                 $html[] .= '<div id="subnav-content-dir" class="subnav-content" style="display: none;">';
-                     $html[] .= '<span>';
-                         $html[] .= '<input type="text" id="lname" name="lname"></input>';
-                         $html[] .= '<button class="newdir">Create</button>';
-                     $html[] .= '<span>';
-                 $html[] .= '</div>';
-                $html[] .= '<div class="btndelete filemanagerbtnup">Delete</div>';
+                    $html[] .= '</div>';
+                    $html[] .= '<div class="btnnewdir filemanagerbtnup">Create dir</div>';
+                    $html[] .= '<div id="subnav-content-dir" class="subnav-content" style="display: none;">';
+                        $html[] .= '<span>';
+                            $html[] .= '<input type="text" id="lname" name="lname"></input>';
+                            $html[] .= '<button class="newdir">Create</button>';
+                        $html[] .= '<span>';
+                    $html[] .= '</div>';
+                    $html[] .= '<div class="btndelete filemanagerbtnup">Delete</div>';
+                }
+            }
+            if ($extension_strtolower == 'txt' || $extension_strtolower == 'html' || $extension_strtolower == 'php' || $extension_strtolower == 'js' || $extension_strtolower == 'log') { 
+                if ($write_path == true) {
+                    $html[] .= '<div id="savefile" class="filemanagerbtnup">Save</div>';
+                }
             }
         $html[] .= '</div>';
 
@@ -111,10 +140,10 @@ function file_manager_get($post) {
                 $html[] .= 'Info';
             $html[] .= '</div>';
         $html[] .= '</div>';
-    
+        
     $html[] .= '</div>';
 
-    $html[] .= '<div class="filemanager-info-wrapper">';
+    $html[] .= '<div id="filemanagerlog"></div>';
     
     $dir = 0;
     $file_ = 0;
@@ -290,6 +319,9 @@ function file_manager_get($post) {
                     $html[] .= '<p>'. formatSizeUnits(filesize($path)).'</p>';
                 $html[] .= '</div>';
             $html[] .= '</div>';
+        } else if ($extension_strtolower == 'txt' || $extension_strtolower == 'html' || $extension_strtolower == 'php' || $extension_strtolower == 'js' || $extension_strtolower == 'log') { 
+            $html[] .= '<div class="editor_path" style="display:none;">'.$dir.'/download.php?path='.$path.'</div>';
+            $html[] .= '<div id="editor"></div>';
         } else if(!is_dir($path)) {
             $html[] .= '<div class="filemanager-download-wrapper">';
                 $html[] .= '<div class="filemanager-info-wrapper">';
@@ -474,6 +506,22 @@ function createdir_filemanager_files($posts) {
   mkdir($object_id);
 
   return wp_send_json ( $object_id );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_save_filemanager_files', 'save_filemanager_files' );
+add_action( 'wp_ajax_nopriv_save_filemanager_files', 'save_filemanager_files' );
+function save_filemanager_files($posts) {
+
+  $object_id = stripslashes($_POST['object_id']);
+  $link = $_POST['link'];
+
+  $myfile = fopen($link, "w");
+  $write = fwrite($myfile, $object_id);
+  fclose($myfile);
+
+  return wp_send_json ( $write );
 
 }
 

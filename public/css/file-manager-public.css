@@ -67,6 +67,7 @@
 
  .filemanager-info-wrapper {
     width: 100%;
+    display: table;
  }
 
  .filemanager-info-video-wrapper {
@@ -94,4 +95,14 @@
     background: #fff;
     padding: 25px;
     border: 0.25px solid rgba(0, 0, 0, 0.25);
+}
+
+.content-area {
+    max-width: 82.5% !important;
+    width: 82.5% !important;
+}
+
+.CodeMirror {
+    border: 1px solid #eee;
+    height: auto;
 }
