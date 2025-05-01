@@ -22,6 +22,10 @@ function wp_filemanager_ajax_scripts() {
 	wp_localize_script( 'file-manager-info', 'file_manager_info_ajax', admin_url( 'admin-ajax.php' ) );
 	wp_enqueue_script( 'file-manager-info' );	
 
+    wp_register_script( 'file-manager-delete', $url . "js/file.manager.delete.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'file-manager-delete', 'file_manager_delete_ajax', admin_url( 'admin-ajax.php' ) );
+    wp_enqueue_script( 'file-manager-delete' );
+
 }
 
 /* 3. AJAX CALLBACK
@@ -49,7 +53,7 @@ function file_manager_get($post) {
 
     include_once(dirname(__FILE__) . '/id3/getid3.php');
 
-    $html[] = '<div id="currentdir" style="display:none">'.$path.'/'.'</div>';
+    $html[] = '<div id="currentdir" style="display:none">'.$path.'</div>';
 
     $html[] = '<div id="currentpostid" style="display:none">'.$postid.'</div>';
 
@@ -71,6 +75,7 @@ function file_manager_get($post) {
                 $html[] .= '<div class="uploadfile filemanagerbtnup">Upload File</div>';
                 $html[] .= '<input id="fileupload" type="file" name="fileupload" multiple style="display:none;"/>';
             }
+            $html[] .= '<div class="btndelete filemanagerbtnup">Delete</div>';
         $html[] .= '</div>';
 
         $html[] .= '<div id="filemanagerbtndown">';
@@ -83,10 +88,36 @@ function file_manager_get($post) {
 
     $html[] .= '<div class="filemanager-info-wrapper">';
     
+    $dir = 0;
+    $file_ = 0;
+    if(is_dir($path)){
+        foreach($files as $file){
+            if(is_dir($path .'/'. $file)) {
+                $dir++;
+            }
+            if(!is_dir($path .'/'. $file)) {
+                $file_++;
+            }
+        }
+
+        $html[] .= '<table class="filemanager-table">';
+            $html[] .= '<tr>';
+                $html[] .= '<td>';
+                    $html[] .= $path;
+                $html[] .= '</td>';
+                $html[] .= '<td style="float: right; padding-right: 5px;">';
+                    $html[] .= $file_ . ' Files & ' . $dir . ' Directory';
+                $html[] .= '</td>';
+            $html[] .= '</tr>';
+        $html[] .= '</table>';       
+    }
+
     $html[] .= '<table class="filemanager-table">';
-        foreach($uploads as $upload){
-            $html[] .= $upload;
-        } 
+        if(isset($uploads)){
+            foreach($uploads as $upload){
+                $html[] .= $upload;
+            }    
+        }
         foreach($files as $file){
             $html[] .= '<tr>';
                 $html[] .= '<td class="filemanager-table-td">';
@@ -106,92 +137,58 @@ function file_manager_get($post) {
         }
     $html[] .= '</table>';
 
-    $dir = plugins_url( '', __FILE__ );
-    $path_info = pathinfo($path);
-    $extension_strtolower = strtolower($path_info['extension']);
-    $getID3 = new getID3;
-    $fileID3 = $getID3->analyze($path);
-    if($extension_strtolower == 'mkv' || $extension_strtolower == 'avi' || $extension_strtolower == 'mp4'){
-        $html[] .= '<video controls="controls" preload="auto" controlsList="nodownload" name="media" width="100%" height="100%" style="margin-bottom: 0;">';
-            $html[] .= '<source src="'.$dir.'/download.php?path='.$path.'" typ type="video/mp4">';
-        $html[] .= '</video>';
+    if(!is_dir($path)) {
+        $dir = plugins_url( '', __FILE__ );
+        $path_info = pathinfo($path);
+        $extension_strtolower = strtolower($path_info['extension']);
+        $getID3 = new getID3;
+        $fileID3 = $getID3->analyze($path);
+
+        $u = 0;
+        $b = 0;
+
+        if ($dh = opendir($path_info['dirname'])) {
+            while (($file = readdir($dh)) !== false) {
+                if(!is_dir($path)) {
+                    $allFiles[] = $file;
+                }
+            }
+            closedir($dh);
+        }
+        $files = array_diff($allFiles, array('.', '..'));
+
+        sort($files);
+                            
+        foreach($files as $file) {
+
+            if($file == basename($path)) {
+                $u = $b;
+            }
+            $b++;
+        }
+
+        $before = $files[$u-1];
+        $next = $files[$u+1];
+
         $html[] .= '<div class="filemanager-info-wrapper">';
-            $html[] .= '<div class="filemanager-info-basename">';
+            $html[] .= '<div class="filemanager-info-basename" style="float: left;">';
                 $html[] .= '<h4>'. $path_info['basename'] .'</h4>';
             $html[] .= '</div>';
-            $html[] .= '<div class="filemanager-info-dirname">';
-                $html[] .= '<h6>'. $path_info['dirname'] .'</h6>';
-            $html[] .= '</div>';
-            $html[] .= '<div class="filemanager-info-filesize">';
-                $html[] .= '<p>'. formatSizeUnits(filesize($path)).'</p>';
-            $html[] .= '</div>';
-            $html[] .= '<div class="filemanager-info-wrapper">';
 
-                $html[] .= '<div class="filemanager-info-video-wrapper">';
-
-                    $html[] .= '<div class="filemanager-info-video">';
-                        $html[] .= 'Video';
-                    $html[] .= '</div>';
-
-                    $html[] .= '<div class="filemanager-info-video-duration">';
-                        $html[] .= 'Duration:'. $fileID3['playtime_string'];
-                    $html[] .= '</div>';
-
-                    $html[] .= '<div class="filemanager-info-video-dataformat">';
-                        $html[] .= 'Codec:' . $fileID3['video']['dataformat'];    
-                    $html[] .= '</div>';   
-
-                    $html[] .= '<div class="filemanager-info-video-resolution">';
-                        $html[] .= 'Dimensions:' . $fileID3['video']['resolution_x'].'x'.$fileID3['video']['resolution_y'];
-                    $html[] .= '</div>';
-
-                    $html[] .= '<div class="filemanager-info-video-frame-rate">';
-                        $html[] .= 'Frame rate:' . $fileID3['video']['frame_rate'];
-                    $html[] .= '</div>';
-
-                $html[] .= '</div>';
-
-                $html[] .= '<div class="filemanager-info-audio-wrapper">';
-
-                    $html[] .= '<div class="filemanager-info-audio">';
-                        $html[] .= 'Audio';
-                    $html[] .= '</div>';
-
-                    $html[] .= '<div class="filemanager-info-audio-dataformat">';
-                        $html[] .= 'Codec:' . $fileID3['audio']['dataformat'];
-                    $html[] .= '</div>';
-
-                    $html[] .= '<div class="filemanager-info-audio-bits-per-sample">';
-                        $html[] .= 'Bits per sample:' . $fileID3['audio']['bits_per_sample'];
-                    $html[] .= '</div>';
-
-                    $html[] .= '<div class="filemanager-info-audio-channelmode">';
-                        $html[] .= 'Channelmode:' . $fileID3['audio']['channelmode'];
-                    $html[] .= '</div>';
-
-                    $html[] .= '<div class="filemanager-info-audio-sample-rate">';
-                        $html[] .= 'Sample rate:' . $fileID3['audio']['sample_rate'];
-                    $html[] .= '</div>';
-
-                $html[] .= '</div>';
-
+            $html[] .= '<div class="file-info-navigate" style="float: right; width: 11%;">';
+            if ($before) {
+                $html[] .= '<div class="file-before" style="float: left; margin: 15px;"><div class="workplace-path" data-object-id="'. $path_info['dirname'] .'/'. $before .'" data-post-id="'.$postid.'">Previous</div></div>';
+            }
+            if ($next) {
+                $html[] .= '<div class="file-next" style="margin: 15px;"><div class="workplace-path" data-object-id="'. $path_info['dirname'] .'/'. $next .'" data-post-id="'.$postid.'">Next</div></div>';
+            }
             $html[] .= '</div>';
         $html[] .= '</div>';
-    } else if( $extension_strtolower == 'jpg' || $extension_strtolower == 'jpeg' || $extension_strtolower == 'bmp'){
-        $html[] .= '<img src="'.$dir.'/download.php?path='.$path.'">';
-        $html[] .= '<div class="filemanager-info-wrapper">';
-            $html[] .= '<div class="filemanager-info-basename">';
-                $html[] .= '<h4>'. $path_info['basename'] .'</h4>';
-            $html[] .= '</div>';
-            $html[] .= '<div class="filemanager-info-dirname">';
-                $html[] .= '<h6>'. $path_info['dirname'] .'</h6>';
-            $html[] .= '</div>';
-            $html[] .= '<div class="filemanager-info-filesize">';
-                $html[] .= '<p>'. formatSizeUnits(filesize($path)).'</p>';
-            $html[] .= '</div>';
-        $html[] .= '</div>';
-    } else if(!is_dir($path)) {
-        $html[] .= '<div class="filemanager-download-wrapper">';
+
+        if($extension_strtolower == 'mkv' || $extension_strtolower == 'avi' || $extension_strtolower == 'mp4'){
+            $html[] .= '<video controls="controls" preload="auto" controlsList="nodownload" name="media" width="100%" height="100%" style="margin-bottom: 0;">';
+                $html[] .= '<source src="'.$dir.'/download.php?path='.$path.'" typ type="video/mp4">';
+            $html[] .= '</video>';
             $html[] .= '<div class="filemanager-info-wrapper">';
                 $html[] .= '<div class="filemanager-info-basename">';
                     $html[] .= '<h4>'. $path_info['basename'] .'</h4>';
@@ -202,14 +199,94 @@ function file_manager_get($post) {
                 $html[] .= '<div class="filemanager-info-filesize">';
                     $html[] .= '<p>'. formatSizeUnits(filesize($path)).'</p>';
                 $html[] .= '</div>';
-                $html[] .= '<div class="filemanager-download-btn">';
-                    $html[] .= '<a href="'.$dir.'/download.php?path='.$path.'">Download</a>';
+                $html[] .= '<div class="filemanager-info-wrapper">';
+
+                    $html[] .= '<div class="filemanager-info-video-wrapper">';
+
+                        $html[] .= '<div class="filemanager-info-video">';
+                            $html[] .= 'Video';
+                        $html[] .= '</div>';
+
+                        $html[] .= '<div class="filemanager-info-video-duration">';
+                            $html[] .= 'Duration:'. $fileID3['playtime_string'];
+                        $html[] .= '</div>';
+
+                        $html[] .= '<div class="filemanager-info-video-dataformat">';
+                            $html[] .= 'Codec:' . $fileID3['video']['dataformat'];    
+                        $html[] .= '</div>';   
+
+                        $html[] .= '<div class="filemanager-info-video-resolution">';
+                            $html[] .= 'Dimensions:' . $fileID3['video']['resolution_x'].'x'.$fileID3['video']['resolution_y'];
+                        $html[] .= '</div>';
+
+                        $html[] .= '<div class="filemanager-info-video-frame-rate">';
+                            $html[] .= 'Frame rate:' . $fileID3['video']['frame_rate'];
+                        $html[] .= '</div>';
+
+                    $html[] .= '</div>';
+
+                    $html[] .= '<div class="filemanager-info-audio-wrapper">';
+
+                        $html[] .= '<div class="filemanager-info-audio">';
+                            $html[] .= 'Audio';
+                        $html[] .= '</div>';
+
+                        $html[] .= '<div class="filemanager-info-audio-dataformat">';
+                            $html[] .= 'Codec:' . $fileID3['audio']['dataformat'];
+                        $html[] .= '</div>';
+
+                        $html[] .= '<div class="filemanager-info-audio-bits-per-sample">';
+                            $html[] .= 'Bits per sample:' . $fileID3['audio']['bits_per_sample'];
+                        $html[] .= '</div>';
+
+                        $html[] .= '<div class="filemanager-info-audio-channelmode">';
+                            $html[] .= 'Channelmode:' . $fileID3['audio']['channelmode'];
+                        $html[] .= '</div>';
+
+                        $html[] .= '<div class="filemanager-info-audio-sample-rate">';
+                            $html[] .= 'Sample rate:' . $fileID3['audio']['sample_rate'];
+                        $html[] .= '</div>';
+
+                    $html[] .= '</div>';
+
                 $html[] .= '</div>';
             $html[] .= '</div>';
-        $html[] .= '</div>';
-    }
+        } else if( $extension_strtolower == 'jpg' || $extension_strtolower == 'jpeg' || $extension_strtolower == 'bmp'){
+            $html[] .= '<img src="'.$dir.'/download.php?path='.$path.'">';
+            $html[] .= '<div class="filemanager-info-wrapper">';
+                $html[] .= '<div class="filemanager-info-basename">';
+                    $html[] .= '<h4>'. $path_info['basename'] .'</h4>';
+                $html[] .= '</div>';
+                $html[] .= '<div class="filemanager-info-dirname">';
+                    $html[] .= '<h6>'. $path_info['dirname'] .'</h6>';
+                $html[] .= '</div>';
+                $html[] .= '<div class="filemanager-info-filesize">';
+                    $html[] .= '<p>'. formatSizeUnits(filesize($path)).'</p>';
+                $html[] .= '</div>';
+            $html[] .= '</div>';
+        } else if(!is_dir($path)) {
+            $html[] .= '<div class="filemanager-download-wrapper">';
+                $html[] .= '<div class="filemanager-info-wrapper">';
+                    $html[] .= '<div class="filemanager-info-basename">';
+                        $html[] .= '<h4>'. $path_info['basename'] .'</h4>';
+                    $html[] .= '</div>';
+                    $html[] .= '<div class="filemanager-info-dirname">';
+                        $html[] .= '<h6>'. $path_info['dirname'] .'</h6>';
+                    $html[] .= '</div>';
+                    $html[] .= '<div class="filemanager-info-filesize">';
+                        $html[] .= '<p>'. formatSizeUnits(filesize($path)).'</p>';
+                    $html[] .= '</div>';
+                    $html[] .= '<div class="filemanager-download-btn">';
+                        $html[] .= '<a href="'.$dir.'/download.php?path='.$path.'">Download</a>';
+                    $html[] .= '</div>';
+                $html[] .= '</div>';
+            $html[] .= '</div>';
+        }
 
-    $html[] .= '<input type="checkbox" id="filemanager-checkbox" class="checkbox" style="display: none;" name="'. $path .'" value="'. $path .'" checked>';
+        if(!is_dir($path)) {
+            $html[] .= '<input type="checkbox" id="filemanager-checkbox" class="checkbox" style="display: none;" name="'. $path .'" value="'. $path .'" checked>';
+        }
+    }
 
     return wp_send_json ( implode($html) );  
 }  
@@ -276,37 +353,35 @@ add_action( 'wp_ajax_nopriv_file_manager_info', 'file_manager_info' );
 
 function file_manager_info($post) {
 
-    $paths = $_POST['path'];
+    $path = $_POST['path'];
 
-    foreach ( $paths as $path ) {
-      if ( $path != '') {
+    if ( $path != '') {
         $i = 0;
         $direname = dirname($path);
         $basename = strtolower(basename($path));
         $getpwuid = posix_getpwuid(fileowner($path));
         $html[] = "<div class='info-window'>";
         $html[] .= "<div class='info-window-close'>X</div>";
-          $html[] .= "<div class='info-window-name'>" . $basename . "</div>";
-          $html[] .= "<div class='info-window-dir-name'>" . $direname . "</div>";
-          $html[] .= "<div class='info-window-fileperms'>" . fileperms($path) . "</div>";
-          foreach ($getpwuid as $username) {
+            $html[] .= "<div class='info-window-name'>" . $basename . "</div>";
+            $html[] .= "<div class='info-window-dir-name'>" . $direname . "</div>";
+            $html[] .= "<div class='info-window-fileperms'>" . fileperms($path) . "</div>";
+            foreach ($getpwuid as $username) {
             if ($i <= 0) {
-              $html[] .= "<div class='info-window-getpwuid'>" . $username . "</div>";
+                $html[] .= "<div class='info-window-getpwuid'>" . $username . "</div>";
             }
             $i++;
-          }
-          if (is_dir($path)) {
+            }
+            if (is_dir($path)) {
             $html[] .= "<div class='info-window-count'>" . countFiles($path) . "</div>";
             try {
-              $html[] .= "<div class='info-window-count-size'>" . formatSizeUnits(GetDirectorySize($path)) . "</div>";
+                $html[] .= "<div class='info-window-count-size'>" . formatSizeUnits(GetDirectorySize($path)) . "</div>";
             } catch (Exception $e) {
-              $html[] .= $e.'<br>';
+                $html[] .= $e.'<br>';
             }
-          } else {
+            } else {
             $html[] .= "<div class='info-window-size'>" . formatSizeUnits(filesize($path)) . "</div>";
-          }
+            }
         $html[] .= "</div>";
-      }
     }
   
     if($html != null) {
@@ -316,3 +391,36 @@ function file_manager_info($post) {
     }
   
 }  
+
+/* AJAX action callback */
+add_action( 'wp_ajax_delete_filemanager_files', 'delete_filemanager_files' );
+add_action( 'wp_ajax_nopriv_delete_filemanager_files', 'delete_filemanager_files' );
+function removeDirectory($path) {
+
+  $files = glob($path . '/*');
+  foreach ($files as $file) {
+    is_dir($file) ? removeDirectory($file) : unlink($file);
+  }
+  rmdir($path);
+
+  return;
+}
+
+function delete_filemanager_files($posts) {
+
+  $object_id = $_POST['path'];
+
+  foreach ($object_id as $file) {
+    if (is_dir($file)) {
+        removeDirectory($file);
+    } else {
+        unlink($file);
+    }
+    $html[] = $file;
+  }
+
+  return wp_send_json ( implode($html) );
+
+}
+
+?>

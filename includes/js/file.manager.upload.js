@@ -62,7 +62,7 @@ function filemanager_uploads_files($) {
         var object_id = jQuery('#currentdir').text();
         var post_id = jQuery('#currentpostid').text();
         jQuery('#fileupload').trigger("click");
-        let pickerfiles = document.getElementById('fileupload');
+        var pickerfiles = document.getElementById('fileupload');
         if(pickerfiles) { 
             pickerfiles.addEventListener('change', event => {
                 event.preventDefault();
