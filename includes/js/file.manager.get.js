@@ -1,4 +1,4 @@
-function file_manager_get($, path, postid){
+function filemanager_get($, path, postid){
 
     var uploads = [];
     var i = 0;
@@ -32,7 +32,7 @@ function file_manager_get($, path, postid){
                     jQuery('.file-manager-wrapper').html(data);
                     var pageHeight = jQuery( '#content' ).height();
                     jQuery('#sidebar').height(pageHeight+75);
-                    file_manager_get($);
+                    filemanager_get($);
                     filemanager_info_files($);
                     filemanager_uploads_files($);
                     filemanager_delete_files($);
@@ -66,7 +66,7 @@ function file_manager_get($, path, postid){
                 jQuery('.file-manager-wrapper').html(data);
                 var pageHeight = jQuery( '#content' ).height();
                 jQuery('#sidebar').height(pageHeight+75);
-                file_manager_get($);
+                filemanager_get($);
                 filemanager_info_files($);
                 filemanager_uploads_files($);
                 filemanager_delete_files($);
@@ -81,5 +81,5 @@ function file_manager_get($, path, postid){
 }
 
 jQuery(document).ready(function($) {
-    file_manager_get($);
+    filemanager_get($);
 });
