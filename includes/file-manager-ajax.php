@@ -30,6 +30,10 @@ function wp_filemanager_ajax_scripts() {
     wp_localize_script( 'file-manager-home', 'file_manager_home_ajax', admin_url( 'admin-ajax.php' ) );
     wp_enqueue_script( 'file-manager-home' );
 
+    wp_register_script( 'file-manager-createfile', $url . "js/file.manager.createfile.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'file-manager-createfile', 'file_manager_createfile_ajax', admin_url( 'admin-ajax.php' ) );
+    wp_enqueue_script( 'file-manager-createfile' );
+
 }
 
 /* 3. AJAX CALLBACK
@@ -81,6 +85,13 @@ function file_manager_get($post) {
                 $html[] .= '<div class="uploaddir filemanagerbtnup">Upload Dir</div>';
                 $html[] .= '<input id="dirupload" type="file" name="fileupload" webkitdirectory multiple style="display: none;">';
             }
+            $html[] .= '<div class="btnnewfile filemanagerbtnup">Create file</div>';
+            $html[] .= '<div id="subnav-content-file" class="subnav-content" style="display: none;">';
+                $html[] .= '<span>';
+                    $html[] .= '<input type="text" id="lnamefile" name="lname"></input>';
+                    $html[] .= '<button class="newfile">Create</button>';
+               $html[] .= '<span>';
+            $html[] .= '</div>';
             $html[] .= '<div class="btndelete filemanagerbtnup">Delete</div>';
         $html[] .= '</div>';
 
@@ -424,6 +435,21 @@ function delete_filemanager_files($posts) {
   }
 
   return wp_send_json ( implode($html) );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_createfile_filemanager_files', 'createfile_filemanager_files' );
+add_action( 'wp_ajax_nopriv_createfile_filemanager_files', 'createfile_filemanager_files' );
+function createfile_filemanager_files($posts) {
+
+  $object_id = $_POST['inputVal'];
+
+  $myfile = fopen($object_id, "w");
+  fwrite($myfile, "");
+  fclose($myfile);
+
+  return wp_send_json ( $object_id );
 
 }
 

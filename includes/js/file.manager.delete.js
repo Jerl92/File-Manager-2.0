@@ -31,7 +31,7 @@ function filemanager_delete_files($) {
                 dataType: 'json',
                 success: function(data){
                     console.log(data);
-                    filemanager_get($, currentdir, currentpostid)
+                    filemanager_get($, currentdir, currentpostid);
                 },
                 error: function(errorThrown){
                     //error stuff here.text

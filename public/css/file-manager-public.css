@@ -87,3 +87,11 @@
     padding: 0 15px;
     width: auto;
  }
+
+.subnav-content-display {
+    display: block !important;
+    position: fixed;
+    background: #fff;
+    padding: 25px;
+    border: 0.25px solid rgba(0, 0, 0, 0.25);
+}
