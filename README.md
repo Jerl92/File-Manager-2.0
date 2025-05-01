@@ -38,7 +38,7 @@ Answer to foo bar dilemma.
 
 == Screenshots ==
 
-<img style="max-width: 100%;" src="https://i.ibb.co/1JnqB8fM/g54g54.png" alt="File-Manager" />
+<img style="max-width: 100%;" src="https://i.ibb.co/Qv114p6D/filemanager.png" alt="File-Manager" />
 
 == Changelog ==
 

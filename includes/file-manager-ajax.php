@@ -34,6 +34,10 @@ function wp_filemanager_ajax_scripts() {
     wp_localize_script( 'file-manager-createfile', 'file_manager_createfile_ajax', admin_url( 'admin-ajax.php' ) );
     wp_enqueue_script( 'file-manager-createfile' );
 
+    wp_register_script( 'file-manager-createdir', $url . "js/file.manager.createdir.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'file-manager-createdir', 'file_manager_createdir_ajax', admin_url( 'admin-ajax.php' ) );
+    wp_enqueue_script( 'file-manager-createdir' );
+
 }
 
 /* 3. AJAX CALLBACK
@@ -57,7 +61,7 @@ function file_manager_get($post) {
 
     $files = array_diff(scandir($workplace), array('.', '..'));
 
-    similar_text($path_origin,$path,$percent_path);
+    similar_text(realpath($path_origin),realpath($path),$percent_path);
 
     include_once(dirname(__FILE__) . '/id3/getid3.php');
 
@@ -84,15 +88,22 @@ function file_manager_get($post) {
                 $html[] .= '<input id="fileupload" type="file" name="fileupload" multiple style="display:none;"/>';
                 $html[] .= '<div class="uploaddir filemanagerbtnup">Upload Dir</div>';
                 $html[] .= '<input id="dirupload" type="file" name="fileupload" webkitdirectory multiple style="display: none;">';
+                $html[] .= '<div class="btnnewfile filemanagerbtnup">Create file</div>';
+                $html[] .= '<div id="subnav-content-file" class="subnav-content" style="display: none;">';
+                    $html[] .= '<span>';
+                        $html[] .= '<input type="text" id="lnamefile" name="lname"></input>';
+                        $html[] .= '<button class="newfile">Create</button>';
+                   $html[] .= '<span>';
+                $html[] .= '</div>';
+                 $html[] .= '<div class="btnnewdir filemanagerbtnup">Create dir</div>';
+                 $html[] .= '<div id="subnav-content-dir" class="subnav-content" style="display: none;">';
+                     $html[] .= '<span>';
+                         $html[] .= '<input type="text" id="lname" name="lname"></input>';
+                         $html[] .= '<button class="newdir">Create</button>';
+                     $html[] .= '<span>';
+                 $html[] .= '</div>';
+                $html[] .= '<div class="btndelete filemanagerbtnup">Delete</div>';
             }
-            $html[] .= '<div class="btnnewfile filemanagerbtnup">Create file</div>';
-            $html[] .= '<div id="subnav-content-file" class="subnav-content" style="display: none;">';
-                $html[] .= '<span>';
-                    $html[] .= '<input type="text" id="lnamefile" name="lname"></input>';
-                    $html[] .= '<button class="newfile">Create</button>';
-               $html[] .= '<span>';
-            $html[] .= '</div>';
-            $html[] .= '<div class="btndelete filemanagerbtnup">Delete</div>';
         $html[] .= '</div>';
 
         $html[] .= '<div id="filemanagerbtndown">';
@@ -120,7 +131,7 @@ function file_manager_get($post) {
         $html[] .= '<table class="filemanager-table">';
             $html[] .= '<tr>';
                 $html[] .= '<td>';
-                    $html[] .= $path;
+                    $html[] .= realpath($path);
                 $html[] .= '</td>';
                 $html[] .= '<td style="float: right; padding-right: 5px;">';
                     $html[] .= $file_ . ' Files & ' . $dir . ' Directory';
@@ -448,6 +459,19 @@ function createfile_filemanager_files($posts) {
   $myfile = fopen($object_id, "w");
   fwrite($myfile, "");
   fclose($myfile);
+
+  return wp_send_json ( $object_id );
+
+}
+
+/* AJAX action callback */
+add_action( 'wp_ajax_createdir_filemanager_files', 'createdir_filemanager_files' );
+add_action( 'wp_ajax_nopriv_createdir_filemanager_files', 'createdir_filemanager_files' );
+function createdir_filemanager_files($posts) {
+
+  $object_id = $_POST['inputVal'];
+
+  mkdir($object_id);
 
   return wp_send_json ( $object_id );
 
