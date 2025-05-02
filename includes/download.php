@@ -9,6 +9,7 @@ require_once 'config.php';
         $fileName = basename($path );
         $filePath = $path;
         $path_parts = pathinfo($filePath);
+        $extension_strtolower = strtolower($path_parts['extension']);
         $ext = $path_parts['extension'];
         $contentType = 'application/octet-stream';
 
@@ -20,7 +21,7 @@ require_once 'config.php';
         $start  = 0;               // Start byte
         $end    = $size - 1;       // End byte
         
-        if($ext == 'mp4' || $ext == 'mkv' || $ext == 'avi'){
+        if($extension_strtolower == 'mp4' || $extension_strtolower == 'mkv' || $extension_strtolower == 'avi'){
             if (isset($_SERVER['HTTP_RANGE'])) {
                 header("Content-Disposition: attachment; filename=$fileName");
                 header('Content-type: video/mp4');
@@ -71,9 +72,11 @@ require_once 'config.php';
                 fclose($fp);
 
             }
-        } elseif($ext == 'pdf') {
+        } else if($extension_strtolower == 'pdf') {
             header("Content-Description: PDF");
-            header("Content-type: $contentType");
+            header("Content-type: application/pdf");
+            header('Cache-Control: public, must-revalidate, max-age=0');
+            header('Pragma: public');
             header("Content-Disposition: inline; filename=$fileName");
             readfile($filePath);
         } else {

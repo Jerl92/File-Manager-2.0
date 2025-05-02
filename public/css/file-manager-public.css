@@ -106,3 +106,7 @@
     border: 1px solid #eee;
     height: auto;
 }
+
+.pdfobject {
+    height: 1024px !important;
+}

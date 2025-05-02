@@ -42,6 +42,10 @@ function wp_filemanager_ajax_scripts() {
     wp_localize_script( 'file-manager-codemirror', 'file_manager_codemirror_ajax', admin_url( 'admin-ajax.php' ) );
     wp_enqueue_script( 'file-manager-codemirror' );
 
+    wp_register_script( 'file-manager-pdf', $url . "js/file.manager.pdf.js", array( 'jquery' ), '1.0.0', true );
+    wp_localize_script( 'file-manager-pdf', 'file_manager_pdf_ajax', admin_url( 'admin-ajax.php' ) );
+    wp_enqueue_script( 'file-manager-pdf' );
+
 }
 
 /* 3. AJAX CALLBACK
@@ -342,6 +346,9 @@ function file_manager_get($post) {
         } else if ($extension_strtolower == 'txt' || $extension_strtolower == 'html' || $extension_strtolower == 'php' || $extension_strtolower == 'js' || $extension_strtolower == 'log') { 
             $html[] .= '<div class="editor_path" style="display:none;">'.$dir.'/download.php?path='.$path.'</div>';
             $html[] .= '<div id="editor"></div>';
+        } else if ($extension_strtolower == 'pdf') {
+            $html[] .= '<div class="editor_path" style="display:none;">'.$dir.'/download.php?path='.$path.'</div>';
+            $html[] .= '</div><div class="pdfviewer" width="100%" height="100%"></div>';
         } else if(!is_dir($path)) {
             $html[] .= '<div class="filemanager-download-wrapper">';
                 $html[] .= '<div class="filemanager-info-wrapper">';

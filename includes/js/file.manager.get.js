@@ -41,6 +41,7 @@ function filemanager_get($, path, postid){
                     filemanager_createdir_files($);
                     filemanager_CodeMirror($);
                     filemanager_all_checkbox($);
+                    filemanager_pdf($);
                 },
                 error: function(errorThrown){
                     console.log(errorThrown);
@@ -79,6 +80,7 @@ function filemanager_get($, path, postid){
                 filemanager_createdir_files($);
                 filemanager_CodeMirror($);
                 filemanager_all_checkbox($);
+                filemanager_pdf($);
             },
             error: function(errorThrown){
                 console.log(errorThrown);
