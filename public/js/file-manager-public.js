@@ -30,3 +30,13 @@
 	 */
 
 })( jQuery );
+
+function filemanager_all_checkbox($) {
+	jQuery("#filemanager-all-checkbox").click(function(){
+		jQuery('input:checkbox').not(this).prop('checked', this.checked);
+	});
+}
+
+jQuery(document).ready(function($) {
+	filemanager_all_checkbox($);
+});

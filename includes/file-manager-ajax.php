@@ -157,7 +157,7 @@ function file_manager_get($post) {
             }
         }
 
-        $html[] .= '<table class="filemanager-table">';
+        $html[] .= '<table class="filemanager-table-info">';
             $html[] .= '<tr>';
                 $html[] .= '<td>';
                     $html[] .= realpath($path);
@@ -173,6 +173,15 @@ function file_manager_get($post) {
         foreach($uploads as $upload){
             $html[] .= $upload;
         }    
+        if(is_dir(realpath($path))) {
+            $html[] .= '<tr>';
+                $html[] .= '<th class="filemanager-table-td">';
+                    $html[] .= '<input type="checkbox" id="filemanager-all-checkbox" class="checkbox" name="checkbox">';
+                $html[] .= '</th>';
+                $html[] .= '<th>Filename</th>';
+                $html[] .= '<th>Size</th>';
+            $html[] .= '</tr>';
+        }
         foreach($files as $file){
             $html[] .= '<tr>';
                 $html[] .= '<td class="filemanager-table-td">';
@@ -225,17 +234,28 @@ function file_manager_get($post) {
         $before = $files[$u-1];
         $next = $files[$u+1];
 
+        $before_file = null;
+        $next_file = null;
+
+        if(!is_dir($path_info['dirname'] .'/'. $before)){
+            $before_file = $before;
+        }
+
+        if(!is_dir($path_info['dirname'] .'/'. $next)){
+            $next_file = $next;
+        }
+
         $html[] .= '<div class="filemanager-info-wrapper">';
             $html[] .= '<div class="filemanager-info-basename" style="float: left;">';
                 $html[] .= '<h4>'. $path_info['basename'] .'</h4>';
             $html[] .= '</div>';
 
             $html[] .= '<div class="file-info-navigate" style="float: right; width: 11%;">';
-            if ($before) {
-                $html[] .= '<div class="file-before" style="float: left; margin: 15px;"><div class="workplace-path" data-object-id="'. $path_info['dirname'] .'/'. $before .'" data-post-id="'.$postid.'">Previous</div></div>';
+            if (isset($before_file)) {
+                $html[] .= '<div class="file-before" style="float: left; margin: 15px;"><div class="workplace-path" data-object-id="'. $path_info['dirname'] .'/'. $before_file .'" data-post-id="'.$postid.'">Previous</div></div>';
             }
-            if ($next) {
-                $html[] .= '<div class="file-next" style="margin: 15px;"><div class="workplace-path" data-object-id="'. $path_info['dirname'] .'/'. $next .'" data-post-id="'.$postid.'">Next</div></div>';
+            if (isset($next_file)) {
+                $html[] .= '<div class="file-next" style="margin: 15px;"><div class="workplace-path" data-object-id="'. $path_info['dirname'] .'/'. $next_file .'" data-post-id="'.$postid.'">Next</div></div>';
             }
             $html[] .= '</div>';
         $html[] .= '</div>';
